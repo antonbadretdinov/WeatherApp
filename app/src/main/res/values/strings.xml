@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">WeatherApp</string>
+    <string name="_15">15°</string>
+    <string name="Friday">Пятница</string>
+    <string name="mainImageDesc">mainImage</string>
+    <string name="stateImageDesc">stateImageDesc</string>
+    <string name="main_image_for_temp">main image for temp</string>
+    <string name="image_for_hourly_forecast">image for hourly forecast</string>
+    <string name="cityNameExample">Санкт-Петербург</string>
+    <string name="image_for_pgs_indicator">image for pgs indicator</string>
+    <string name="now">Сейчас</string>
+    <string name="actual_state_of_weather">actual hourly state of weather</string>
+    <string name="_16_c">16°C</string>
+    <string name="cloudly">Облачно</string>
+    <string name="feels_like">Ощущается как: 15°C</string>
+    <string name="wind_speed">Скорость ветра: 5 км/ч</string>
 </resources>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imageMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_main_sun"
+        android:contentDescription="@string/main_image_for_temp" />
+
+    <ImageView
+        android:id="@+id/imageHourlyForecast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:contentDescription="@string/image_for_hourly_forecast"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageMain"
+        app:srcCompat="@drawable/ic_hourly_back_sun"
+        tools:ignore="ImageContrastCheck" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerDailyForecast"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/imageHourlyForecast"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/imageHourlyForecast"
+        app:layout_constraintTop_toBottomOf="@+id/imageHourlyForecast"
+        tools:itemCount="5"
+        tools:listitem="@layout/daily_forecast_item" />
+
+    <TextView
+        android:id="@+id/tvCityName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/nunito_sans"
+        android:text="@string/cityNameExample"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/imageMain"
+        app:layout_constraintStart_toStartOf="@+id/imageMain"
+        app:layout_constraintTop_toTopOf="@+id/imageMain" />
+
+    <ImageView
+        android:id="@+id/imageGPS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/tvCityName"
+        app:layout_constraintEnd_toStartOf="@+id/tvCityName"
+        app:layout_constraintStart_toStartOf="@+id/imageMain"
+        app:layout_constraintTop_toTopOf="@+id/tvCityName"
+        app:srcCompat="@drawable/ic_gps_small_icon"
+        android:contentDescription="@string/image_for_pgs_indicator" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerHourlyForecast"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="@+id/imageHourlyForecast"
+        app:layout_constraintEnd_toEndOf="@+id/imageHourlyForecast"
+        app:layout_constraintStart_toStartOf="@+id/imageHourlyForecast"
+        app:layout_constraintTop_toTopOf="@+id/imageHourlyForecast"
+        tools:itemCount="5"
+        tools:listitem="@layout/hourly_forecast_item" />
+
+    <TextView
+        android:id="@+id/tvMainTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:fontFamily="@font/nunito_sans"
+        android:text="@string/_16_c"
+        android:textColor="@color/grayCustom"
+        android:textSize="54sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageMain"
+        app:layout_constraintEnd_toEndOf="@+id/imageMain"
+        app:layout_constraintStart_toStartOf="@+id/imageMain"
+        app:layout_constraintTop_toBottomOf="@+id/tvCityName" />
+
+    <TextView
+        android:id="@+id/tvMainState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:textColor="@color/grayCustom"
+        android:textSize="16sp"
+        android:text="@string/cloudly"
+        app:layout_constraintEnd_toEndOf="@+id/imageMain"
+        app:layout_constraintStart_toStartOf="@+id/imageMain"
+        app:layout_constraintTop_toBottomOf="@+id/tvMainTemp" />
+
+    <TextView
+        android:id="@+id/tvFeelsLike"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nunito_sans"
+        android:textSize="16sp"
+        android:text="@string/feels_like"
+        android:textColor="#000000"
+        app:layout_constraintBottom_toBottomOf="@+id/imageMain"
+        app:layout_constraintEnd_toEndOf="@+id/imageMain"
+        app:layout_constraintStart_toStartOf="@+id/imageMain"
+        app:layout_constraintTop_toBottomOf="@+id/tvMainState" />
+
+    <TextView
+        android:id="@+id/tvWindSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nunito_sans"
+        android:text="@string/wind_speed"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        app:layout_constraintBottom_toBottomOf="@+id/imageMain"
+        app:layout_constraintEnd_toEndOf="@+id/imageMain"
+        app:layout_constraintStart_toStartOf="@+id/imageMain"
+        app:layout_constraintTop_toBottomOf="@+id/tvFeelsLike" />
+</androidx.constraintlayout.widget.ConstraintLayout>
