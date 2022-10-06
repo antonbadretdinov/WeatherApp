@@ -34,7 +34,8 @@ class Test: AppCompatActivity() {
         var URL="https://api.openweathermap.org/data/2.5/weather?" +
                 "lat=$lat" +
                 "&lon=$lon" +
-                "&appid=$TOKEN"
+                "&appid=$TOKEN"+
+                "&units=metric&lang=en"
         val queue= Volley.newRequestQueue(applicationContext)
         val request= StringRequest(
             Request.Method.GET,URL,
@@ -43,6 +44,20 @@ class Test: AppCompatActivity() {
             {error->Log.d("mylog","Result: $error")}
         )
         queue.add(request)
+    }
+
+    private fun parseData(result: String){
+        val mainJSONObject=JSONObject(result)
+        val city= TestData(
+            mainJSONObject.getString("name"),
+            mainJSONObject.getJSONArray("weather").getJSONObject(0).getString("description"),
+            mainJSONObject.getJSONObject("main").getString("feels_like"),
+            mainJSONObject.getJSONObject("wind").getString("speed"),
+            mainJSONObject.getJSONObject("main").getString("temp"),
+            ""
+
+        )
+
     }
 }
 /*private class GetURLData : AsyncTask<String?, String?, String?>() {
@@ -124,6 +139,6 @@ class Test: AppCompatActivity() {
     }
 
     override fun doInBackground(vararg p0: String?): String? {
-        TODO("Not yet implemented")
+
     }
 }*/
