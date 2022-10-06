@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_cloud_small_icon.xml" value="0.1455" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_gps_small_icon.xml" value="0.2525" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_hourly_back_cloud.xml" value="0.2525" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2525" />
@@ -11,8 +12,9 @@
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_main_sun.xml" value="0.2525" />
         <entry key="..\:/WeatherApp/app/src/main/res/layout/activity_main.xml" value="0.264" />
         <entry key="..\:/WeatherApp/app/src/main/res/layout/daily_forecast_item.xml" value="0.264" />
-        <entry key="..\:/WeatherApp/app/src/main/res/layout/hourly_forecast_item.xml" value="0.6" />
-        <entry key="..\:/WeatherApp/app/src/main/res/layout/main_weather_item.xml" value="0.6" />
+        <entry key="..\:/WeatherApp/app/src/main/res/layout/hourly_forecast_item.xml" value="0.536" />
+        <entry key="..\:/WeatherApp/app/src/main/res/layout/main_weather_item.xml" value="0.2" />
+        <entry key="..\:/WeatherApp/app/src/main/res/layout/test_layout.xml" value="0.1984375" />
       </map>
     </option>
   </component>

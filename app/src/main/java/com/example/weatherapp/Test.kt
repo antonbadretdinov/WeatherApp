@@ -1,45 +1,52 @@
 package com.example.weatherapp
 
 import android.annotation.SuppressLint
-import android.os.AsyncTask
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import org.json.JSONException
-import org.json.JSONObject
 import android.util.Log
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import android.content.Context
-
+import org.json.JSONObject
+import org.w3c.dom.Text
+import java.util.logging.Level.parse
 
 
 const val TOKEN="cf5ce9b04c663ea943cbe23110355483"
 
 
 class Test: AppCompatActivity() {
-    //val userListFromJson: List<User> = mapper.readValue(jsonArray)
-    /*println(userListFromJson)*/
+    private var currentData: TestData? = null
+
+    private var name : TextView? = null
+    private var mainTemp : TextView? = null
+    private var description : TextView? = null
+    private var feelsLike : TextView? = null
+    private var windSpeed : TextView? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.test_layout)
+        name = findViewById(R.id.tvCityName)
+        mainTemp = findViewById(R.id.tvMainTemp)
+        description = findViewById(R.id.tvMainState)
+        feelsLike = findViewById(R.id.tvFeelsLike)
+        windSpeed = findViewById(R.id.tvWindSpeed)
         getData(59.937500,30.308611)
-
     }
 
 
-
-
     private fun getData(lat:Double,lon:Double){
-        var URL="https://api.openweathermap.org/data/2.5/weather?" +
+        val URL="https://api.openweathermap.org/data/2.5/weather?" +
                 "lat=$lat" +
                 "&lon=$lon" +
                 "&appid=$TOKEN"+
-                "&units=metric&lang=en"
+                "&units=metric&lang=ru"
         val queue= Volley.newRequestQueue(applicationContext)
         val request= StringRequest(
             Request.Method.GET,URL,
-            {result-> Log.d("mylog","Result: $result")
+            {
+                result -> parseData(result)
             },
             {error->Log.d("mylog","Result: $error")}
         )
@@ -48,97 +55,25 @@ class Test: AppCompatActivity() {
 
     private fun parseData(result: String){
         val mainJSONObject=JSONObject(result)
-        val city= TestData(
+        currentData= TestData(
             mainJSONObject.getString("name"),
             mainJSONObject.getJSONArray("weather").getJSONObject(0).getString("description"),
-            mainJSONObject.getJSONObject("main").getString("feels_like"),
+            mainJSONObject.getJSONObject("main").getDouble("feels_like"),
             mainJSONObject.getJSONObject("wind").getString("speed"),
-            mainJSONObject.getJSONObject("main").getString("temp"),
+            mainJSONObject.getJSONObject("main").getDouble("temp"),
             ""
-
         )
-
-    }
-}
-/*private class GetURLData : AsyncTask<String?, String?, String?>() {
-    //будет работать асинхронно
-    override fun onPreExecute() {
-        super.onPreExecute()
-        descr_tsk.setText("...")
-        temp_tsk.setText("...")
-        wind_tsk.setText("...")
-        fl_tsk.setText("...")
-    }*/
-
-/*
-    protected override fun doInBackground(vararg strings: String): String? {
-        var connection: HttpURLConnection? = null
-        var reader: BufferedReader? = null
-        try {
-            val url =
-                URL(strings[0]) // url-соединение, 0 - потому что первый элемент массива strings это url оказывается
-            connection = url.openConnection() as HttpURLConnection //http-соединение
-            connection.connect()
-            val stream: InputStream = connection.getInputStream() //считываем полученный поток
-            reader = BufferedReader(InputStreamReader(stream)) //для считывания в формате строки
-            val buffer = StringBuilder()
-            var line: String? = ""
-            while (reader.readLine().also { line = it } != null) {
-                buffer.append(line).append("\n")
-            }
-            return buffer.toString()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
-            if (connection != null) {
-                connection.disconnect()
-            }
-            try {
-                if (reader != null) {
-                    reader.close()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-        return null
+        putDataToLayout(currentData!!)
     }
 
     @SuppressLint("SetTextI18n")
-    override fun onPostExecute(result: String?) {
-        super.onPostExecute(result)
-        try {
-            time_tsk.setText(df.format(Calendar.getInstance().getTime()))
-            val jsonObject = JSONObject(result)
-            temp_tsk.setText(
-                jsonObject.getJSONObject("main").getDouble("temp").toInt().toString() + "°C"
-            )
-            fl_tsk.setText(
-                jsonObject.getJSONObject("main").getDouble("feels_like").toInt().toString() + "°C"
-            )
-            wind_tsk.setText(
-                jsonObject.getJSONObject("wind").getDouble("speed").toInt().toString() + " m/s"
-            )
-            descr_tsk.setText(
-                jsonObject.getJSONArray("weather").getJSONObject(0)
-                    .getString("description") as CharSequence
-            )
-            if (descr_tsk.getText().equals("clear sky")) {
-                sun_tsk.setVisibility(View.VISIBLE)
-            } else if (descr_tsk.getText().equals("few clouds")
-                || descr_tsk.getText().equals("scattered clouds")
-                || descr_tsk.getText().equals("broken clouds")
-            ) {
-                cloud_tsk.setVisibility(View.VISIBLE)
-            } else {
-                rain_tsk.setVisibility(View.VISIBLE)
-            }
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-    }
+    private fun putDataToLayout(data:TestData){
+        name?.text = data.place
+        mainTemp?.text = data.currentTemp.toInt().toString()+"°C"
+        description?.text = data.description
+        feelsLike?.text = "Ощущается как: "+ data.feels_like.toInt().toString()+"°C"
+        windSpeed?.text = "Скорость ветра: "+ data.windSpeed+" км/ч"
 
-    override fun doInBackground(vararg p0: String?): String? {
 
     }
-}*/
+}
