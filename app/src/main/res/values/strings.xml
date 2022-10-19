@@ -12,6 +12,8 @@
     <string name="actual_state_of_weather">actual hourly state of weather</string>
     <string name="_16_c">16°C</string>
     <string name="cloudly">Облачно</string>
-    <string name="feels_like">Ощущается как: 15°C</string>
-    <string name="wind_speed">Скорость ветра: 5 км/ч</string>
+    <string name="feels_like">Ощущается как: …</string>
+    <string name="wind_speed">Скорость ветра: …</string>
+    <string name="gps_loading">Идет загрузка</string>
+    <string name="loading_temp">...</string>
 </resources>
