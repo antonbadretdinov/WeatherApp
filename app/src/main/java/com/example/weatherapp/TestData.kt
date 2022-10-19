@@ -6,6 +6,7 @@ data class TestData(
     val feels_like: Double,
     val windSpeed: String,
     val currentTemp: Double,
+    val mainDesc: String,
     val hours: String,
 
 )
