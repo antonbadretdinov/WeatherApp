@@ -1,17 +1,22 @@
 package com.example.weatherapp
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.example.weatherapp.adapter.TestDailyAdapter
+import com.example.weatherapp.adapter.TestHourlyAdapter
+import com.example.weatherapp.model.DailyForecastModel
+import com.example.weatherapp.model.HourlyForecastModel
 import org.json.JSONObject
 
 
@@ -30,18 +35,58 @@ class Test: AppCompatActivity() {
     private var feelsLike : TextView? = null
     private var windSpeed : TextView? = null
 
+    private var icon1 : Drawable? = null
+    private var icon2 : Drawable? = null
+    private var icon3 : Drawable? = null
+    private var icon4 : Drawable? = null
 
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.test_layout)
 
 
-        val list = intArrayOf(1,1,1,1,1,1,1,1,1).toCollection(ArrayList())
+        val backDailyRain : Drawable? = ContextCompat.getDrawable(this,R.drawable.ic_forecast_rain)
+        val backDailySun : Drawable? = ContextCompat.getDrawable(this,R.drawable.ic_forecast_sun)
+        val backDailyCloud : Drawable? = ContextCompat.getDrawable(this,R.drawable.ic_forecast_cloud)
+        val backDailySnow : Drawable? = ContextCompat.getDrawable(this,R.drawable.ic_forecast_snow)
 
-        val recyclerView : RecyclerView = findViewById(R.id.recyclerHourlyForecast)
-        recyclerView.layoutManager = LinearLayoutManager(this,RecyclerView.HORIZONTAL,false)
-        recyclerView.adapter = TestAdapter(list)
+        icon1 = ContextCompat.getDrawable(this,R.drawable.ic_cloud_small_icon)
+        icon2 = ContextCompat.getDrawable(this,R.drawable.ic_rain_small_icon)
+        icon3 = ContextCompat.getDrawable(this,R.drawable.ic_snow_small_icon)
+        icon4 = ContextCompat.getDrawable(this,R.drawable.ic_sun_small_icon)
+        val icon5 = icon1
+        val icon6 = icon2
+        val icon7 = icon3
+        val icon8 = icon4
+
+        val model1H = HourlyForecastModel(21,icon1)//hourlyForecastModels
+        val model2H = HourlyForecastModel(14,icon2)
+        val model3H = HourlyForecastModel(7,icon3)
+        val model4H = HourlyForecastModel(4,icon4)
+        val model5H = HourlyForecastModel(24,icon5)
+        val model6H = HourlyForecastModel(13,icon6)
+        val model7H = HourlyForecastModel(27,icon7)
+        val model8H = HourlyForecastModel(31,icon8)
+
+        val model1D = DailyForecastModel(21,12,icon1,backDailyCloud)//dailyForecastModels
+        val model2D = DailyForecastModel(12,-22,icon2,backDailyRain)
+        val model3D = DailyForecastModel(21,3,icon3,backDailySnow)
+        val model4D = DailyForecastModel(3,-3,icon4,backDailySun)
+
+
+
+        val hourlyForecast : Array<HourlyForecastModel> = arrayOf(model1H,model2H,model3H,model4H,model5H,model6H,model7H,model8H)
+        val recyclerViewHourly : RecyclerView = findViewById(R.id.recyclerHourlyForecast)
+        recyclerViewHourly.layoutManager = LinearLayoutManager(this,RecyclerView.HORIZONTAL,false)
+        recyclerViewHourly.adapter = TestHourlyAdapter(hourlyForecast)
+
+        val dailyForecast : Array<DailyForecastModel> = arrayOf(model1D,model2D,model3D,model4D)
+        val recyclerViewDaily : RecyclerView = findViewById(R.id.recyclerDailyForecast)
+        recyclerViewDaily.layoutManager = LinearLayoutManager(this,RecyclerView.VERTICAL,false)
+        recyclerViewDaily.adapter = TestDailyAdapter(dailyForecast)
+
 
         mainBackground = findViewById(R.id.imageMain)
         hourlyImageView = findViewById(R.id.imageHourlyForecast)

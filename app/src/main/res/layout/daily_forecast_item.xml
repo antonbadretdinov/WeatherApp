@@ -16,7 +16,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_forecast_sun"
+            app:srcCompat="@drawable/ic_forecast_loading"
             android:contentDescription="@string/mainImageDesc" />
 
         <ImageView
@@ -31,7 +31,7 @@
             android:contentDescription="@string/stateImageDesc" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/tvDay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
