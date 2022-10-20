@@ -1,6 +1,8 @@
 package com.example.weatherapp
 
 import android.Manifest
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.*
 import android.content.Context
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
@@ -28,16 +30,20 @@ var long=0.0
 
 
 class Test: AppCompatActivity() {
+
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
 
     private var currentData: TestData? = null
+    private var coord: CoordData? = null
 
     private var name : TextView? = null
     private var mainTemp : TextView? = null
     private var description : TextView? = null
     private var feelsLike : TextView? = null
     private var windSpeed : TextView? = null
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,17 +55,16 @@ class Test: AppCompatActivity() {
         windSpeed = findViewById(R.id.tvWindSpeed)
         ActivityCompat.requestPermissions(
             this,
-            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION),
             mark
         )
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            mark 
-        )
+
+
+
         getLocation()
-        getData(lat,long)
+
     }
+
 
     /*override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -78,6 +83,7 @@ class Test: AppCompatActivity() {
     }*/
     private fun getLocation(){
         val ct = CancellationTokenSource()
+        fusedLocationProviderClient=LocationServices.getFusedLocationProviderClient(this)
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -89,14 +95,15 @@ class Test: AppCompatActivity() {
             Log.d("mylog", "Connection denied")
 
             return
-        }
-        fusedLocationProviderClient
-            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
-            .addOnCompleteListener{lat=it.result.longitude; long=it.result.latitude }
+        } else {
+            fusedLocationProviderClient
+                .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
+                .addOnCompleteListener { getData(it.result.latitude,it.result.longitude)}
 
-        Log.d("mylog","Result: $long")
-        Log.d("mylog","Result: $lat")
+        }
     }
+
+
 
     private fun getData(lat:Double,lon:Double){
         val URL="https://api.openweathermap.org/data/2.5/weather?" +
@@ -126,10 +133,10 @@ class Test: AppCompatActivity() {
             mainJSONObject.getJSONObject("main").getDouble("feels_like"),
             mainJSONObject.getJSONObject("wind").getString("speed"),
             mainJSONObject.getJSONObject("main").getDouble("temp"),
+            mainJSONObject.getJSONArray("weather").getJSONObject(0).getString("main"),
             ""
         )
         putDataToLayout(currentData!!)
-
     }
 
 
@@ -142,6 +149,7 @@ private fun parseCurrentData(mainJSONObject: JSONObject){
         mainJSONObject.getJSONObject("main").getDouble("feels_like"),
         mainJSONObject.getJSONObject("wind").getString("speed"),
         mainJSONObject.getJSONObject("main").getDouble("temp"),
+        mainJSONObject.getJSONArray("weather").getJSONObject(0).getString("main"),
         ""
     )
     putDataToLayout(currentData!!)
@@ -158,4 +166,47 @@ private fun parseCurrentData(mainJSONObject: JSONObject){
 
 
     }
+
+
+
+    private suspend fun getLocation2():Array<Double>{
+        val ct = CancellationTokenSource()
+        fusedLocationProviderClient=LocationServices.getFusedLocationProviderClient(this)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d("mylog", "Connection denied")
+        }
+        long= fusedLocationProviderClient
+            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
+            .result.longitude
+        lat= fusedLocationProviderClient
+            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
+            .result.latitude
+        val gps = arrayOf(long,lat)
+        return(gps)
+
+    }
+     suspend fun main()= coroutineScope {
+
+        val job: Job = launch{
+            delay(1000L)
+            val gps:Array<Double> = getLocation2()
+            long=gps[0]
+            lat=gps[1]
+        }
+        job.start()
+
+    }
+
 }
+
+
+
+
+
