@@ -4,7 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_cloud_small_icon.xml" value="0.1455" />
+        <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_forecast_rain.xml" value="0.1695" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_forecast_snow.xml" value="0.1695" />
+        <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_forecast_sun.xml" value="0.1695" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_gps_small_icon.xml" value="0.2525" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_hourly_back_cloud.xml" value="0.2525" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_hourly_back_rain.xml" value="0.1695" />
@@ -14,6 +16,7 @@
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.2525" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_main_cloud.xml" value="0.2525" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_main_loading.xml" value="0.1695" />
+        <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_main_rain.xml" value="0.1695" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_main_snow.xml" value="0.1695" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_main_sun.xml" value="0.2525" />
         <entry key="..\:/WeatherApp/app/src/main/res/drawable/ic_rain_small_icon.xml" value="0.1695" />
@@ -23,7 +26,7 @@
         <entry key="..\:/WeatherApp/app/src/main/res/layout/daily_forecast_item.xml" value="0.264" />
         <entry key="..\:/WeatherApp/app/src/main/res/layout/hourly_forecast_item.xml" value="0.536" />
         <entry key="..\:/WeatherApp/app/src/main/res/layout/main_weather_item.xml" value="0.2" />
-        <entry key="..\:/WeatherApp/app/src/main/res/layout/test_layout.xml" value="0.1984375" />
+        <entry key="..\:/WeatherApp/app/src/main/res/layout/test_layout.xml" value="0.2" />
       </map>
     </option>
   </component>

@@ -7,26 +7,28 @@
 
     <ImageView
         android:id="@+id/imageMain"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="60dp"
+        android:contentDescription="@string/main_image_for_temp"
+        app:layout_constraintBottom_toTopOf="@+id/guidelineHorizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="@string/main_image_for_temp"
-        android:background="@drawable/ic_main_loading"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/imageHourlyForecast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:contentDescription="@string/image_for_hourly_forecast"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageMain"
+        app:layout_constraintTop_toTopOf="@+id/guidelineHorizontal"
         app:srcCompat="@drawable/ic_hourly_forecast_loading"
-        tools:ignore="ImageContrastCheck"/>
+        tools:ignore="ImageContrastCheck" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerDailyForecast"
@@ -68,12 +70,13 @@
         android:id="@+id/recyclerHourlyForecast"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="@+id/imageHourlyForecast"
         app:layout_constraintEnd_toEndOf="@+id/imageHourlyForecast"
         app:layout_constraintStart_toStartOf="@+id/imageHourlyForecast"
-        app:layout_constraintTop_toTopOf="@+id/imageHourlyForecast"
+        app:layout_constraintTop_toTopOf="@+id/guidelineHorizontal"
         tools:itemCount="5"
         tools:listitem="@layout/hourly_forecast_item" />
 
@@ -106,10 +109,11 @@
         android:id="@+id/tvFeelsLike"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:fontFamily="@font/nunito_sans"
-        android:textSize="16sp"
         android:text="@string/feels_like"
         android:textColor="#000000"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/imageMain"
         app:layout_constraintEnd_toEndOf="@+id/imageMain"
         app:layout_constraintStart_toStartOf="@+id/imageMain"
@@ -119,12 +123,23 @@
         android:id="@+id/tvWindSpeed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:fontFamily="@font/nunito_sans"
         android:text="@string/wind_speed"
-        android:textSize="16sp"
         android:textColor="#000000"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/imageMain"
         app:layout_constraintEnd_toEndOf="@+id/imageMain"
         app:layout_constraintStart_toStartOf="@+id/imageMain"
         app:layout_constraintTop_toBottomOf="@+id/tvFeelsLike" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_begin="430dp"
+        app:layout_constraintGuide_percent="0.65"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

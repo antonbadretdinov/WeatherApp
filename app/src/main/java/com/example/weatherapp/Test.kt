@@ -1,39 +1,34 @@
 package com.example.weatherapp
 
 import android.Manifest
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.*
-import android.content.Context
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.example.weatherapp.adapter.TestDailyAdapter
+import com.example.weatherapp.adapter.TestHourlyAdapter
+import com.example.weatherapp.model.DailyForecastModel
+import com.example.weatherapp.model.HourlyForecastModel
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.json.JSONObject
-import com.google.android.gms.location.Priority
 
 
-const val TOKEN="cf5ce9b04c663ea943cbe23110355483"
+const val TOKEN="318125c470f64fb3829482ebd1518bd9"
 const val mark=1
-var lat=0.0
-var long=0.0
 
 
 class Test: AppCompatActivity() {
@@ -42,7 +37,7 @@ class Test: AppCompatActivity() {
 
 
     private var currentData: TestData? = null
-
+    private var dailyForecastArray: ArrayList<DailyForecastModel>? = null
     private var mainBackground : ImageView? = null
     private var hourlyImageView : ImageView? = null
 
@@ -52,20 +47,58 @@ class Test: AppCompatActivity() {
     private var feelsLike : TextView? = null
     private var windSpeed : TextView? = null
 
+    private var icon1 : Drawable? = null
+    private var icon2 : Drawable? = null
+    private var icon3 : Drawable? = null
+    private var icon4 : Drawable? = null
+    private var backDailyRain : Drawable? = null
+    private var backDailySun : Drawable? = null
+    private var backDailyCloud : Drawable? = null
+    private var backDailySnow : Drawable? = null
 
-
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.test_layout)
 
+        icon1 = ContextCompat.getDrawable(this,R.drawable.ic_cloud_small_icon)
+        icon2 = ContextCompat.getDrawable(this,R.drawable.ic_rain_small_icon)
+        icon3 = ContextCompat.getDrawable(this,R.drawable.ic_snow_small_icon)
+        icon4 = ContextCompat.getDrawable(this,R.drawable.ic_sun_small_icon)
 
-        val list = intArrayOf(1,1,1,1,1,1,1,1,1).toCollection(ArrayList())
+        val iconD1 = ContextCompat.getDrawable(this,R.drawable.ic_forecast_cloud)
+        val iconD2 = ContextCompat.getDrawable(this,R.drawable.ic_forecast_snow)
+        val iconD3 = ContextCompat.getDrawable(this,R.drawable.ic_forecast_sun)
+        val iconD4 = ContextCompat.getDrawable(this,R.drawable.ic_forecast_rain)
 
-        val recyclerView : RecyclerView = findViewById(R.id.recyclerHourlyForecast)
-        recyclerView.layoutManager = LinearLayoutManager(this,RecyclerView.HORIZONTAL,false)
-        recyclerView.adapter = TestAdapter(list)
+        val model1H = HourlyForecastModel(12,icon4)
+        val model2H = HourlyForecastModel(32,icon2)
+        val model3H = HourlyForecastModel(22,icon1)
+        val model4H = HourlyForecastModel(2,icon3)
+        val model5H = HourlyForecastModel(-22,icon2)
+        val model6H = HourlyForecastModel(12,icon1)
+        val model7H = HourlyForecastModel(32,icon3)
+        val model8H = HourlyForecastModel(-4,icon4);
+        val hourlyForecast : Array<HourlyForecastModel> = arrayOf(model1H,model2H,model3H,model4H,model5H,model6H,model7H,model8H)
+        val recyclerViewHourly : RecyclerView = findViewById(R.id.recyclerHourlyForecast)
+        recyclerViewHourly.layoutManager = LinearLayoutManager(this,RecyclerView.HORIZONTAL,false)
+        recyclerViewHourly.adapter = TestHourlyAdapter(hourlyForecast)
+
+
+        val model1D = DailyForecastModel(0,3,icon4,"",iconD1)
+        val model2D = DailyForecastModel(12,22,icon1,"",iconD2)
+        val model3D = DailyForecastModel(-2,21,icon2,"",iconD3)
+        val model4D = DailyForecastModel(2,12,icon3,"",iconD4)
+        val model5D = DailyForecastModel(1,3,icon4,"",iconD1)
+
+        val dailyForecast : Array<DailyForecastModel> = arrayOf(model1D,model2D,model3D,model4D,model5D)
+        val recyclerViewDaily : RecyclerView = findViewById(R.id.recyclerDailyForecast)
+        recyclerViewDaily.layoutManager = LinearLayoutManager(this,RecyclerView.VERTICAL,false)
+            recyclerViewDaily.adapter = TestDailyAdapter(dailyForecast)
+
 
         mainBackground = findViewById(R.id.imageMain)
+        mainBackground?.setImageResource(R.drawable.ic_main_loading)
         hourlyImageView = findViewById(R.id.imageHourlyForecast)
 
         name = findViewById(R.id.tvCityName)
@@ -84,59 +117,136 @@ class Test: AppCompatActivity() {
         getLocation()
 
     }
-//59.937500,30.308611
-private fun getLocation(){
-    val ct = CancellationTokenSource()
-    fusedLocationProviderClient=LocationServices.getFusedLocationProviderClient(this)
-    if (ActivityCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        Log.d("mylog", "Connection denied")
 
-        return
-    } else {
-        fusedLocationProviderClient
-            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
-            .addOnCompleteListener { getData(it.result.latitude,it.result.longitude)}
+    private fun getLocation(){
+        val ct = CancellationTokenSource()
+        fusedLocationProviderClient=LocationServices.getFusedLocationProviderClient(this)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d("mylog", "Connection denied")
 
+            return
+        } else {
+            fusedLocationProviderClient
+                .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
+                .addOnCompleteListener { getData(it.result.latitude,it.result.longitude)}
+
+        }
     }
-}
+
+
 
     private fun getData(lat:Double,lon:Double){
-        val URL="https://api.openweathermap.org/data/2.5/weather?" +
+        val URL="https://api.weatherbit.io/v2.0/current?" +
                 "lat=$lat" +
                 "&lon=$lon" +
-                "&appid=$TOKEN"+
-                "&units=metric&lang=ru"
-        val queue= Volley.newRequestQueue(applicationContext)
+                "&key=$TOKEN"+
+                "&units=M&lang=ru"
+        val URLForecast7="https://api.weatherbit.io/v2.0/forecast/daily?" +
+                "lat=$lat" +
+                "&lon=$lon" +
+                "&key=$TOKEN"+
+                "&units=M&lang=ru"
+        val queue= Volley.newRequestQueue(this)
         val request= StringRequest(
             Request.Method.GET,URL,
             {
-                result -> parseData(result)
+                    result -> parseData(result)
             },
             {error->Log.d("mylog","Result: $error")}
         )
+            val request2= StringRequest(
+                Request.Method.GET,URLForecast7,
+                {
+                        result2 -> parseDataFromDailyForecast(result2)
+                },
+                {error->Log.d("mylog","Result: $error")}
+            )
+        queue.add(request2)
         queue.add(request)
+    }
+
+
+    private fun parseDataFromDailyForecast(result: String){
+        val mainJSONObject=JSONObject(result)
+        val value1 = DailyForecastModel(
+            mainJSONObject.getJSONArray("data")
+                .getJSONObject(0).getDouble("min_temp").toInt(),
+
+            mainJSONObject.getJSONArray("data")
+                .getJSONObject(0).getDouble("max_temp").toInt(),
+
+            if(mainJSONObject.getJSONArray("data")
+                    .getJSONObject(0).getJSONObject("weather").getString("description").contains("Облачно"))icon1
+            else if(mainJSONObject.getJSONArray("data")
+                    .getJSONObject(0).getJSONObject("weather").getString("description").contains("Дождь"))icon2
+            else if(mainJSONObject.getJSONArray("data")
+                    .getJSONObject(0).getJSONObject("weather").getString("description").contains("Снег"))icon3
+            else icon4,
+
+            mainJSONObject.getJSONArray("data")
+                .getJSONObject(0).getJSONObject("weather").getString("description"),
+
+            if(mainJSONObject.getJSONArray("data").
+                getJSONObject(0).getJSONObject("weather").getString("description").contains("Облачно")) backDailyCloud
+            else if(mainJSONObject.getJSONArray("data").
+                getJSONObject(0).getJSONObject("weather").getString("description").contains("Дождь")) backDailyRain
+            else if(mainJSONObject.getJSONArray("data").
+                getJSONObject(0).getJSONObject("weather").getString("description").contains("Снег")) backDailySnow
+            else backDailySun
+        )
+        dailyForecastArray?.add(value1)
+
+        val value2 = DailyForecastModel(
+            mainJSONObject.getJSONArray("data")
+                .getJSONObject(1).getDouble("min_temp").toInt(),
+
+            mainJSONObject.getJSONArray("data")
+                .getJSONObject(1).getDouble("max_temp").toInt(),
+
+            if(mainJSONObject.getJSONArray("data")
+                    .getJSONObject(1).getJSONObject("weather").getString("description").contains("Облачно"))icon1
+            else if(mainJSONObject.getJSONArray("data")
+                    .getJSONObject(1).getJSONObject("weather").getString("description").contains("Дождь"))icon2
+            else if(mainJSONObject.getJSONArray("data")
+                    .getJSONObject(1).getJSONObject("weather").getString("description").contains("Снег"))icon3
+            else icon4,
+
+            mainJSONObject.getJSONArray("data")
+                .getJSONObject(1).getJSONObject("weather").getString("description"),
+
+            if(mainJSONObject.getJSONArray("data").
+                getJSONObject(1).getJSONObject("weather").getString("description").contains("Облачно")) backDailyCloud
+            else if(mainJSONObject.getJSONArray("data").
+                getJSONObject(1).getJSONObject("weather").getString("description").contains("Дождь")) backDailyRain
+            else if(mainJSONObject.getJSONArray("data").
+                getJSONObject(1).getJSONObject("weather").getString("description").contains("Снег")) backDailySnow
+            else backDailySun
+        )
+        dailyForecastArray?.add(value2)
+        Log.d("MyLog",value1.description.toString()+","+value1.minTemp.toString()+","+value1.maxTemp.toString())
+        Log.d("MyLog",value2.description.toString()+","+value2.minTemp.toString()+","+value2.maxTemp.toString())
     }
 
     private fun parseData(result: String){
         val mainJSONObject=JSONObject(result)
         currentData= TestData(
-            mainJSONObject.getString("name"),
-            mainJSONObject.getJSONArray("weather").getJSONObject(0).getString("description"),
-            mainJSONObject.getJSONObject("main").getDouble("feels_like"),
-            mainJSONObject.getJSONObject("wind").getString("speed"),
-            mainJSONObject.getJSONObject("main").getDouble("temp"),
-            mainJSONObject.getJSONArray("weather").getJSONObject(0).getString("main"),
+            mainJSONObject.getJSONArray("data").getJSONObject(0).getString("city_name"),
+            mainJSONObject.getJSONArray("data").getJSONObject(0).getJSONObject("weather").getString("description"),
+            mainJSONObject.getJSONArray("data").getJSONObject(0).getDouble("app_temp"),
+            mainJSONObject.getJSONArray("data").getJSONObject(0).getDouble("wind_spd"),
+            mainJSONObject.getJSONArray("data").getJSONObject(0).getDouble("temp"),
             ""
         )
         putDataToLayout(currentData!!)
     }
+
 
     @SuppressLint("SetTextI18n", "UseCompatLoadingForDrawables")
     private fun putDataToLayout(data:TestData){
@@ -144,30 +254,29 @@ private fun getLocation(){
         mainTemp?.text = data.currentTemp.toInt().toString()+"°C"
         description?.text = data.description
         feelsLike?.text = "Ощущается как: "+ data.feels_like.toInt()+" °C"
-        windSpeed?.text = "Скорость ветра: "+ data.windSpeed[0]+" км/ч"
+        windSpeed?.text = "Скорость ветра: "+ data.windSpeed.toInt()+" км/ч"
 
-        when (data.mainDesc) {
-            "Clear" -> {
+         if(data.description.contains("Облачно")) {
                 mainBackground?.setImageResource(R.drawable.ic_main_sun)
                 hourlyImageView?.setImageResource(R.drawable.ic_hourly_back_sun)
-            }
-            "Rain" -> {
+            }else if(data.description.contains("Дождь")){
                 mainBackground?.setImageResource(R.drawable.ic_main_rain)
                 hourlyImageView?.setImageResource(R.drawable.ic_hourly_back_rain)
-            }
-            "Snow" -> {
+            }else if(data.description.contains("Снег")) {
                 mainBackground?.setImageResource(R.drawable.ic_main_snow)
                 hourlyImageView?.setImageResource(R.drawable.ic_hourly_forecast_snow)
-            }
-            else -> {
+            } else{
                 mainBackground?.setImageResource(R.drawable.ic_main_cloud)
                 hourlyImageView?.setImageResource(R.drawable.ic_hourly_back_cloud)
             }
         }
     }
+
+
+/*
     private suspend fun getLocation2():Array<Double>{
         val ct = CancellationTokenSource()
-        fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -188,7 +297,7 @@ private fun getLocation(){
         return(gps)
 
     }
-    suspend fun main()= coroutineScope {
+     suspend fun main()= coroutineScope {
 
         val job: Job = launch{
             delay(1000L)
@@ -198,19 +307,10 @@ private fun getLocation(){
         }
         job.start()
 
-    }
-}
+    }*/
 
-/*
-*переменная облачность
-* небольшая облачность
-* пасмурно
-* ясно
-* облачно с прояснениями
-* небольшой дождь
-*
-* Clouds
-* Rain
-* Clear
-* Snow
-* */
+
+
+
+
+
