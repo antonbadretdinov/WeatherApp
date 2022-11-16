@@ -1,5 +1,6 @@
 package com.example.weatherapp
 
+import kotlinx.coroutines.*
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
@@ -25,6 +26,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import org.json.JSONObject
+import java.lang.Thread.sleep
 
 
 const val TOKEN="318125c470f64fb3829482ebd1518bd9"
@@ -38,63 +40,68 @@ class Test: AppCompatActivity() {
 
     private var currentData: TestData? = null
     private var dailyForecastArray: ArrayList<DailyForecastModel>? = null
-    private var mainBackground : ImageView? = null
-    private var hourlyImageView : ImageView? = null
+    private var mainBackground: ImageView? = null
+    private var hourlyImageView: ImageView? = null
 
-    private var name : TextView? = null
-    private var mainTemp : TextView? = null
-    private var description : TextView? = null
-    private var feelsLike : TextView? = null
-    private var windSpeed : TextView? = null
+    private var name: TextView? = null
+    private var mainTemp: TextView? = null
+    private var description: TextView? = null
+    private var feelsLike: TextView? = null
+    private var windSpeed: TextView? = null
 
-    private var icon1 : Drawable? = null
-    private var icon2 : Drawable? = null
-    private var icon3 : Drawable? = null
-    private var icon4 : Drawable? = null
-    private var backDailyRain : Drawable? = null
-    private var backDailySun : Drawable? = null
-    private var backDailyCloud : Drawable? = null
-    private var backDailySnow : Drawable? = null
+    private var icon1: Drawable? = null
+    private var icon2: Drawable? = null
+    private var icon3: Drawable? = null
+    private var icon4: Drawable? = null
+    private var backDailyRain: Drawable? = null
+    private var backDailySun: Drawable? = null
+    private var backDailyCloud: Drawable? = null
+    private var backDailySnow: Drawable? = null
+
+    var appScope = CoroutineScope(Dispatchers.IO)
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.test_layout)
 
-        icon1 = ContextCompat.getDrawable(this,R.drawable.ic_cloud_small_icon)
-        icon2 = ContextCompat.getDrawable(this,R.drawable.ic_rain_small_icon)
-        icon3 = ContextCompat.getDrawable(this,R.drawable.ic_snow_small_icon)
-        icon4 = ContextCompat.getDrawable(this,R.drawable.ic_sun_small_icon)
+        icon1 = ContextCompat.getDrawable(this, R.drawable.ic_cloud_small_icon)
+        icon2 = ContextCompat.getDrawable(this, R.drawable.ic_rain_small_icon)
+        icon3 = ContextCompat.getDrawable(this, R.drawable.ic_snow_small_icon)
+        icon4 = ContextCompat.getDrawable(this, R.drawable.ic_sun_small_icon)
 
-        val iconD1 = ContextCompat.getDrawable(this,R.drawable.ic_forecast_cloud)
-        val iconD2 = ContextCompat.getDrawable(this,R.drawable.ic_forecast_snow)
-        val iconD3 = ContextCompat.getDrawable(this,R.drawable.ic_forecast_sun)
-        val iconD4 = ContextCompat.getDrawable(this,R.drawable.ic_forecast_rain)
+        val iconD1 = ContextCompat.getDrawable(this, R.drawable.ic_forecast_cloud)
+        val iconD2 = ContextCompat.getDrawable(this, R.drawable.ic_forecast_snow)
+        val iconD3 = ContextCompat.getDrawable(this, R.drawable.ic_forecast_sun)
+        val iconD4 = ContextCompat.getDrawable(this, R.drawable.ic_forecast_rain)
 
-        val model1H = HourlyForecastModel(12,icon4)
-        val model2H = HourlyForecastModel(32,icon2)
-        val model3H = HourlyForecastModel(22,icon1)
-        val model4H = HourlyForecastModel(2,icon3)
-        val model5H = HourlyForecastModel(-22,icon2)
-        val model6H = HourlyForecastModel(12,icon1)
-        val model7H = HourlyForecastModel(32,icon3)
-        val model8H = HourlyForecastModel(-4,icon4);
-        val hourlyForecast : Array<HourlyForecastModel> = arrayOf(model1H,model2H,model3H,model4H,model5H,model6H,model7H,model8H)
-        val recyclerViewHourly : RecyclerView = findViewById(R.id.recyclerHourlyForecast)
-        recyclerViewHourly.layoutManager = LinearLayoutManager(this,RecyclerView.HORIZONTAL,false)
+        val model1H = HourlyForecastModel(12, icon4)
+        val model2H = HourlyForecastModel(32, icon2)
+        val model3H = HourlyForecastModel(22, icon1)
+        val model4H = HourlyForecastModel(2, icon3)
+        val model5H = HourlyForecastModel(-22, icon2)
+        val model6H = HourlyForecastModel(12, icon1)
+        val model7H = HourlyForecastModel(32, icon3)
+        val model8H = HourlyForecastModel(-4, icon4);
+        val hourlyForecast: Array<HourlyForecastModel> =
+            arrayOf(model1H, model2H, model3H, model4H, model5H, model6H, model7H, model8H)
+        val recyclerViewHourly: RecyclerView = findViewById(R.id.recyclerHourlyForecast)
+        recyclerViewHourly.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         recyclerViewHourly.adapter = TestHourlyAdapter(hourlyForecast)
 
 
-        val model1D = DailyForecastModel(0,3,icon4,"",iconD1)
-        val model2D = DailyForecastModel(12,22,icon1,"",iconD2)
-        val model3D = DailyForecastModel(-2,21,icon2,"",iconD3)
-        val model4D = DailyForecastModel(2,12,icon3,"",iconD4)
-        val model5D = DailyForecastModel(1,3,icon4,"",iconD1)
+        val model1D = DailyForecastModel(0, 3, icon4, "", iconD1)
+        val model2D = DailyForecastModel(12, 22, icon1, "", iconD2)
+        val model3D = DailyForecastModel(-2, 21, icon2, "", iconD3)
+        val model4D = DailyForecastModel(2, 12, icon3, "", iconD4)
+        val model5D = DailyForecastModel(1, 3, icon4, "", iconD1)
 
-        val dailyForecast : Array<DailyForecastModel> = arrayOf(model1D,model2D,model3D,model4D,model5D)
-        val recyclerViewDaily : RecyclerView = findViewById(R.id.recyclerDailyForecast)
-        recyclerViewDaily.layoutManager = LinearLayoutManager(this,RecyclerView.VERTICAL,false)
-            recyclerViewDaily.adapter = TestDailyAdapter(dailyForecast)
+
+        val dailyForecast: Array<DailyForecastModel> =
+            arrayOf(model1D, model2D, model3D, model4D, model5D)
+        val recyclerViewDaily: RecyclerView = findViewById(R.id.recyclerDailyForecast)
+        recyclerViewDaily.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        recyclerViewDaily.adapter = TestDailyAdapter(dailyForecast)
 
 
         mainBackground = findViewById(R.id.imageMain)
@@ -108,15 +115,23 @@ class Test: AppCompatActivity() {
         windSpeed = findViewById(R.id.tvWindSpeed)
         ActivityCompat.requestPermissions(
             this,
-            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION),
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
             mark
         )
 
 
 
-        getLocation()
+        Log.d("mylog", "Test0")
+        val job: Job=appScope.launch{
+              getLocation()}
 
-    }
+        Log.d("mylog","Test2")
+}
+
+
 
     private fun getLocation(){
         val ct = CancellationTokenSource()
@@ -138,11 +153,14 @@ class Test: AppCompatActivity() {
                 .addOnCompleteListener { getData(it.result.latitude,it.result.longitude)}
 
         }
+
+        Log.d("mylog","Test1")
     }
 
 
 
-    private fun getData(lat:Double,lon:Double){
+    private  fun getData(lat:Double,lon:Double){
+        sleep(10000)
         val URL="https://api.weatherbit.io/v2.0/current?" +
                 "lat=$lat" +
                 "&lon=$lon" +
@@ -154,13 +172,21 @@ class Test: AppCompatActivity() {
                 "&key=$TOKEN"+
                 "&units=M&lang=ru"
         val queue= Volley.newRequestQueue(this)
-        val request= StringRequest(
-            Request.Method.GET,URL,
-            {
-                    result -> parseData(result)
-            },
-            {error->Log.d("mylog","Result: $error")}
-        )
+        val jobOfrequest1: Job=appScope.launch{
+            sleep(11001)
+            val request= StringRequest(
+                Request.Method.GET,URL,
+                {
+                        result -> parseData(result)
+                },
+                {error->Log.d("mylog","Result: $error")}
+            )
+            queue.add(request)
+            Log.d("mylog","Test3")
+        }
+
+        val jobOfrequest2: Job=appScope.launch{
+            sleep(10000)
             val request2= StringRequest(
                 Request.Method.GET,URLForecast7,
                 {
@@ -168,8 +194,10 @@ class Test: AppCompatActivity() {
                 },
                 {error->Log.d("mylog","Result: $error")}
             )
-        queue.add(request2)
-        queue.add(request)
+            queue.add(request2)
+            Log.d("mylog","Test4")
+        }
+
     }
 
 
@@ -273,42 +301,16 @@ class Test: AppCompatActivity() {
     }
 
 
-/*
-    private suspend fun getLocation2():Array<Double>{
-        val ct = CancellationTokenSource()
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.d("mylog", "Connection denied")
+/*suspend fun main() = coroutineScope{
+    launch{
+        for(i in 0..5){
+            delay(400L)
+            println(i)
         }
-        long= fusedLocationProviderClient
-            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
-            .result.longitude
-        lat= fusedLocationProviderClient
-            .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
-            .result.latitude
-        val gps = arrayOf(long,lat)
-        return(gps)
-
     }
-     suspend fun main()= coroutineScope {
 
-        val job: Job = launch{
-            delay(1000L)
-            val gps:Array<Double> = getLocation2()
-            long=gps[0]
-            lat=gps[1]
-        }
-        job.start()
-
-    }*/
-
+    println("Hello Coroutines")
+}*/
 
 
 
