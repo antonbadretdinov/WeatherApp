@@ -19,6 +19,7 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.weatherapp.adapter.TestDailyAdapter
 import com.example.weatherapp.adapter.TestHourlyAdapter
+import com.example.weatherapp.data.Api.ApiService
 import com.example.weatherapp.model.DailyForecastModel
 import com.example.weatherapp.model.HourlyForecastModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -26,6 +27,10 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import org.json.JSONObject
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
 import java.lang.Thread.sleep
 
 
@@ -126,7 +131,8 @@ class Test: AppCompatActivity() {
 
         Log.d("mylog", "Test0")
         val job: Job=appScope.launch{
-              getLocation()}
+              getLocation()
+        }
 
         Log.d("mylog","Test2")
 }
@@ -160,7 +166,7 @@ class Test: AppCompatActivity() {
 
 
     private  fun getData(lat:Double,lon:Double){
-        sleep(10000)
+
         val URL="https://api.weatherbit.io/v2.0/current?" +
                 "lat=$lat" +
                 "&lon=$lon" +
@@ -171,9 +177,12 @@ class Test: AppCompatActivity() {
                 "&lon=$lon" +
                 "&key=$TOKEN"+
                 "&units=M&lang=ru"
+
+
         val queue= Volley.newRequestQueue(this)
         val jobOfrequest1: Job=appScope.launch{
-            sleep(11001)
+
+
             val request= StringRequest(
                 Request.Method.GET,URL,
                 {
@@ -186,7 +195,7 @@ class Test: AppCompatActivity() {
         }
 
         val jobOfrequest2: Job=appScope.launch{
-            sleep(10000)
+
             val request2= StringRequest(
                 Request.Method.GET,URLForecast7,
                 {
@@ -203,63 +212,43 @@ class Test: AppCompatActivity() {
 
     private fun parseDataFromDailyForecast(result: String){
         val mainJSONObject=JSONObject(result)
+        for (i in 0..6)
+        {
         val value1 = DailyForecastModel(
             mainJSONObject.getJSONArray("data")
-                .getJSONObject(0).getDouble("min_temp").toInt(),
+                .getJSONObject(i).getDouble("min_temp").toInt(),
 
             mainJSONObject.getJSONArray("data")
-                .getJSONObject(0).getDouble("max_temp").toInt(),
+                .getJSONObject(i).getDouble("max_temp").toInt(),
 
             if(mainJSONObject.getJSONArray("data")
-                    .getJSONObject(0).getJSONObject("weather").getString("description").contains("Облачно"))icon1
+                    .getJSONObject(i).getJSONObject("weather").getString("description").contains("Облачно"))icon1
             else if(mainJSONObject.getJSONArray("data")
-                    .getJSONObject(0).getJSONObject("weather").getString("description").contains("Дождь"))icon2
+                    .getJSONObject(i).getJSONObject("weather").getString("description").contains("Дождь"))icon2
             else if(mainJSONObject.getJSONArray("data")
-                    .getJSONObject(0).getJSONObject("weather").getString("description").contains("Снег"))icon3
+                    .getJSONObject(i).getJSONObject("weather").getString("description").contains("Снег"))icon3
             else icon4,
 
             mainJSONObject.getJSONArray("data")
-                .getJSONObject(0).getJSONObject("weather").getString("description"),
+                .getJSONObject(i).getJSONObject("weather").getString("description"),
 
             if(mainJSONObject.getJSONArray("data").
-                getJSONObject(0).getJSONObject("weather").getString("description").contains("Облачно")) backDailyCloud
+                getJSONObject(i).getJSONObject("weather").getString("description").contains("Облачно")) backDailyCloud
             else if(mainJSONObject.getJSONArray("data").
-                getJSONObject(0).getJSONObject("weather").getString("description").contains("Дождь")) backDailyRain
+                getJSONObject(i).getJSONObject("weather").getString("description").contains("Дождь")) backDailyRain
             else if(mainJSONObject.getJSONArray("data").
-                getJSONObject(0).getJSONObject("weather").getString("description").contains("Снег")) backDailySnow
+                getJSONObject(i).getJSONObject("weather").getString("description").contains("Снег")) backDailySnow
             else backDailySun
         )
-        dailyForecastArray?.add(value1)
+            dailyForecastArray?.add(value1)
+            Log.d("mylog",value1.description.toString()+","+dailyForecastArray?.get(i)?.minTemp.toString()+","+value1.maxTemp.toString())
+        }
 
-        val value2 = DailyForecastModel(
-            mainJSONObject.getJSONArray("data")
-                .getJSONObject(1).getDouble("min_temp").toInt(),
 
-            mainJSONObject.getJSONArray("data")
-                .getJSONObject(1).getDouble("max_temp").toInt(),
 
-            if(mainJSONObject.getJSONArray("data")
-                    .getJSONObject(1).getJSONObject("weather").getString("description").contains("Облачно"))icon1
-            else if(mainJSONObject.getJSONArray("data")
-                    .getJSONObject(1).getJSONObject("weather").getString("description").contains("Дождь"))icon2
-            else if(mainJSONObject.getJSONArray("data")
-                    .getJSONObject(1).getJSONObject("weather").getString("description").contains("Снег"))icon3
-            else icon4,
 
-            mainJSONObject.getJSONArray("data")
-                .getJSONObject(1).getJSONObject("weather").getString("description"),
 
-            if(mainJSONObject.getJSONArray("data").
-                getJSONObject(1).getJSONObject("weather").getString("description").contains("Облачно")) backDailyCloud
-            else if(mainJSONObject.getJSONArray("data").
-                getJSONObject(1).getJSONObject("weather").getString("description").contains("Дождь")) backDailyRain
-            else if(mainJSONObject.getJSONArray("data").
-                getJSONObject(1).getJSONObject("weather").getString("description").contains("Снег")) backDailySnow
-            else backDailySun
-        )
-        dailyForecastArray?.add(value2)
-        Log.d("MyLog",value1.description.toString()+","+value1.minTemp.toString()+","+value1.maxTemp.toString())
-        Log.d("MyLog",value2.description.toString()+","+value2.minTemp.toString()+","+value2.maxTemp.toString())
+
     }
 
     private fun parseData(result: String){
@@ -301,16 +290,27 @@ class Test: AppCompatActivity() {
     }
 
 
-/*suspend fun main() = coroutineScope{
-    launch{
-        for(i in 0..5){
-            delay(400L)
-            println(i)
-        }
+interface ApiService {
+    @GET("v2.0/current?lat={lat}&lon={lon}&key=$TOKEN&units=M&lang=ru")
+    suspend fun getCourseData(): Response<HourlyForecastModel>
+
+
+    @GET("v2.0/forecast/daily?lat={lat}&lon={lon}&key=$TOKEN&units=M&lang=ru")
+    suspend fun getDailyData(): Response<DailyForecastModel>
+}
+
+object RetrofitIns {
+    private val retrofit by lazy{
+        Retrofit.Builder().baseUrl("https://api.weatherbit.io/").
+        addConverterFactory(GsonConverterFactory.create()).build()
     }
 
-    println("Hello Coroutines")
-}*/
+    val api: ApiService by lazy{
+        retrofit.create(ApiService::class.java)
+    }
+}
+
+
 
 
 
