@@ -6,13 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapp.R
 import com.example.weatherapp.model.DailyForecastModel
 import java.util.*
 
-class TestDailyAdapter(private val forecastModel: Array<DailyForecastModel>):
+class TestDailyAdapter(private val forecastModel: ArrayList<DailyForecastModel>?):
     RecyclerView.Adapter<TestDailyAdapter.ViewHolder>() {
 
     class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView){
@@ -30,18 +29,45 @@ class TestDailyAdapter(private val forecastModel: Array<DailyForecastModel>):
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.day.text = forecastModel[position].curDay
-        holder.tempMin.text = forecastModel[position].minTemp.toString()
-        holder.tempMax.text = forecastModel[position].maxTemp.toString()
-        holder.iconImage.setImageDrawable(forecastModel[position].image)
-        holder.backgroundImage.setImageDrawable(forecastModel[position].backgroundImage)
+        if(forecastModel?.get(position)?.curDay==0){
+            holder.day.text = "Сегодня"
+        }else{
+            holder.day.text=getCurrentDay(forecastModel?.get(position)?.curDay)
+        }
+        holder.tempMin.text = forecastModel?.get(position)?.minTemp.toString()
+        holder.tempMax.text = forecastModel?.get(position)?.maxTemp.toString()
+        holder.iconImage.setImageDrawable(forecastModel?.get(position)?.image)
+        holder.backgroundImage.setImageDrawable(forecastModel?.get(position)?.backgroundImage)
     }
 
-
+    private fun getCurrentDay(count:Int? = null): String {
+        val calendar = Calendar.getInstance()
+        return if(count!=null){
+            val day = calendar.get(Calendar.DAY_OF_WEEK) + count
+            if(day>7){
+                getDay(day%7)
+            }else {
+                getDay(day)
+            }
+        }else {
+            getDay(calendar.get(Calendar.DAY_OF_WEEK))
+        }
+    }
+    private fun getDay(dayCount: Int?): String{
+        return when(dayCount){
+            1 -> "Воскресенье"
+            2 -> "Понедельник"
+            3 -> "Вторник"
+            4 -> "Среда"
+            5 -> "Четверг"
+            6 -> "Пятница"
+            else -> {
+                return "Суббота"
+            }
+        }
+    }
 
     override fun getItemCount(): Int {
-            return forecastModel.size
+            return forecastModel!!.size
     }
-
-
 }

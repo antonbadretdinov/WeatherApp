@@ -16,27 +16,15 @@
         app:srcCompat="@drawable/ic_main_sun"
         android:contentDescription="@string/main_image_for_temp" />
 
-    <ImageView
-        android:id="@+id/imageHourlyForecast"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:contentDescription="@string/image_for_hourly_forecast"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageMain"
-        app:srcCompat="@drawable/ic_hourly_back_sun"
-        tools:ignore="ImageContrastCheck" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerDailyForecast"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/imageHourlyForecast"
+        app:layout_constraintEnd_toEndOf="@+id/imageMain"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/imageHourlyForecast"
-        app:layout_constraintTop_toBottomOf="@+id/imageHourlyForecast"
+        app:layout_constraintStart_toStartOf="@+id/imageMain"
+        app:layout_constraintTop_toBottomOf="@+id/imageMain"
         tools:itemCount="5"
         tools:listitem="@layout/daily_forecast_item" />
 
@@ -63,19 +51,6 @@
         app:layout_constraintTop_toTopOf="@+id/tvCityName"
         app:srcCompat="@drawable/ic_gps_small_icon"
         android:contentDescription="@string/image_for_pgs_indicator" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerHourlyForecast"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="@+id/imageHourlyForecast"
-        app:layout_constraintEnd_toEndOf="@+id/imageHourlyForecast"
-        app:layout_constraintStart_toStartOf="@+id/imageHourlyForecast"
-        app:layout_constraintTop_toTopOf="@+id/imageHourlyForecast"
-        tools:itemCount="5"
-        tools:listitem="@layout/hourly_forecast_item" />
 
     <TextView
         android:id="@+id/tvMainTemp"

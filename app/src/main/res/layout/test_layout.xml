@@ -18,27 +18,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageHourlyForecast"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:contentDescription="@string/image_for_hourly_forecast"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guidelineHorizontal"
-        app:srcCompat="@drawable/ic_hourly_forecast_loading"
-        tools:ignore="ImageContrastCheck" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerDailyForecast"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/imageHourlyForecast"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/imageHourlyForecast"
-        app:layout_constraintTop_toBottomOf="@+id/imageHourlyForecast"
+        app:layout_constraintEnd_toEndOf="@+id/imageMain"
+        app:layout_constraintStart_toStartOf="@+id/imageMain"
+        app:layout_constraintTop_toBottomOf="@+id/imageMain"
         tools:itemCount="5"
         tools:listitem="@layout/daily_forecast_item" />
 
@@ -65,20 +52,6 @@
         app:layout_constraintTop_toTopOf="@+id/tvCityName"
         app:srcCompat="@drawable/ic_gps_small_icon"
         android:contentDescription="@string/image_for_pgs_indicator" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerHourlyForecast"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="@+id/imageHourlyForecast"
-        app:layout_constraintEnd_toEndOf="@+id/imageHourlyForecast"
-        app:layout_constraintStart_toStartOf="@+id/imageHourlyForecast"
-        app:layout_constraintTop_toTopOf="@+id/guidelineHorizontal"
-        tools:itemCount="5"
-        tools:listitem="@layout/hourly_forecast_item" />
 
     <TextView
         android:id="@+id/tvMainTemp"
@@ -142,4 +115,14 @@
         app:layout_constraintGuide_begin="430dp"
         app:layout_constraintGuide_percent="0.65"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressCircle"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerDailyForecast"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageMain" />
 </androidx.constraintlayout.widget.ConstraintLayout>
