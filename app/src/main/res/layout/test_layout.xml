@@ -7,25 +7,23 @@
 
     <ImageView
         android:id="@+id/imageMain"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="60dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:contentDescription="@string/main_image_for_temp"
-        app:layout_constraintBottom_toTopOf="@+id/guidelineHorizontal"
+        android:src="@drawable/ic_main_loading"
+        app:layout_constraintBottom_toTopOf="@+id/recyclerDailyForecast"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerDailyForecast"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/imageMain"
-        app:layout_constraintStart_toStartOf="@+id/imageMain"
-        app:layout_constraintTop_toBottomOf="@+id/imageMain"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guidelineHorizontal"
         tools:itemCount="5"
         tools:listitem="@layout/daily_forecast_item" />
 
@@ -113,7 +111,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintGuide_begin="430dp"
-        app:layout_constraintGuide_percent="0.65"
+        app:layout_constraintGuide_percent="0.70"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ProgressBar

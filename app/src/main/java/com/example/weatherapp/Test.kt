@@ -68,7 +68,7 @@ class Test: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.test_layout)
 
-        progressCircle = findViewById(R.id.progressCircle);
+        progressCircle = findViewById(R.id.progressCircle)
         icon1 = ContextCompat.getDrawable(this, R.drawable.ic_cloud_small_icon)
         icon2 = ContextCompat.getDrawable(this, R.drawable.ic_rain_small_icon)
         icon3 = ContextCompat.getDrawable(this, R.drawable.ic_snow_small_icon)
@@ -233,13 +233,13 @@ class Test: AppCompatActivity() {
         feelsLike?.text = "Ощущается как: "+ data.feels_like.toInt()+" °C"
         windSpeed?.text = "Скорость ветра: "+ data.windSpeed.toInt()+" км/ч"
 
-         if(data.description.contains("Облачно")) {
+         if(data.description.contains("Облачно")||data.description.contains("облачно")) {
                 mainBackground?.setImageResource(R.drawable.ic_main_cloud)
                 hourlyImageView?.setImageResource(R.drawable.ic_hourly_back_cloud)
-            }else if(data.description.contains("Дождь")){
+            }else if(data.description.contains("Дождь")||data.description.contains("дождь")){
                 mainBackground?.setImageResource(R.drawable.ic_main_rain)
                 hourlyImageView?.setImageResource(R.drawable.ic_hourly_back_rain)
-            }else if(data.description.contains("Снег")) {
+            }else if(data.description.contains("Снег")||data.description.contains("снег")) {
                 mainBackground?.setImageResource(R.drawable.ic_main_snow)
                 hourlyImageView?.setImageResource(R.drawable.ic_hourly_forecast_snow)
             } else{
