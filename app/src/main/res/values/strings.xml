@@ -16,4 +16,5 @@
     <string name="wind_speed">Скорость ветра: …</string>
     <string name="gps_loading">Идет загрузка</string>
     <string name="loading_temp">...</string>
+    <string name="update">Update</string>
 </resources>

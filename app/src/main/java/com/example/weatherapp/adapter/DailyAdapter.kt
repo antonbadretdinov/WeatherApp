@@ -1,6 +1,5 @@
 package com.example.weatherapp.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +10,8 @@ import com.example.weatherapp.R
 import com.example.weatherapp.model.DailyForecastModel
 import java.util.*
 
-class TestDailyAdapter(private val forecastModel: ArrayList<DailyForecastModel>?):
-    RecyclerView.Adapter<TestDailyAdapter.ViewHolder>() {
+class DailyAdapter(private val forecastModel: ArrayList<DailyForecastModel>?):
+    RecyclerView.Adapter<DailyAdapter.ViewHolder>() {
 
     class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView){
         val tempMin : TextView = itemView.findViewById(R.id.dailyTempDay)

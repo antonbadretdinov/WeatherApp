@@ -1,12 +1,12 @@
-package com.example.weatherapp
+package com.example.weatherapp.data
 
-data class TestData(
+import android.graphics.drawable.Drawable
+
+data class CurrentWeatherData(
     val place: String,
     val description: String,
     val feels_like: Double,
     val windSpeed: Double,
     val currentTemp: Double,
     val hours: String,
-
 )
-
