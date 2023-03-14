@@ -1,28 +1,26 @@
 package com.example.weatherapp
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Request
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-import com.example.weatherapp.adapter.DailyAdapter
-import com.example.weatherapp.data.CurrentWeatherData
-import com.example.weatherapp.model.DailyForecastModel
+import com.example.weatherapp.adapter.ForecastAdapter
+import com.example.weatherapp.databinding.ActivityMainBinding
+import com.example.weatherapp.helpers.MARK
+import com.example.weatherapp.helpers.checkPermission
+import com.example.weatherapp.model.CurrentWeather
+import com.example.weatherapp.model.Data
+import com.example.weatherapp.model.ForecastModel
+import com.example.weatherapp.viewmodel.MainViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -30,82 +28,82 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONObject
-
 
 class MainActivity : AppCompatActivity() {
-    private val token ="318125c470f64fb3829482ebd1518bd9"
-    private val mark =1
 
+    private val viewModel: MainViewModel by viewModels()
+    private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
-    private var currentData: CurrentWeatherData? = null
-    private var mainBackground: ImageView? = null
-    private var hourlyImageView: ImageView? = null
-
-    private var name: TextView? = null
-    private var mainTemp: TextView? = null
-    private var description: TextView? = null
-    private var feelsLike: TextView? = null
-    private var windSpeed: TextView? = null
-
-    private var icon1: Drawable? = null
-    private var icon2: Drawable? = null
-    private var icon3: Drawable? = null
-    private var icon4: Drawable? = null
-    private var backDailyRain: Drawable? = null
-    private var backDailySun: Drawable? = null
-    private var backDailyCloud: Drawable? = null
-    private var backDailySnow: Drawable? = null
-
-    private var recyclerViewDaily: RecyclerView? = null
-    private var progressCircle: ProgressBar? = null
-
-    private var appScope = CoroutineScope(Dispatchers.IO)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        init()
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
+        if (checkPermission(permissionName = Manifest.permission.ACCESS_FINE_LOCATION) &&
+            checkPermission(permissionName = Manifest.permission.ACCESS_COARSE_LOCATION)
+        ) {
+            CoroutineScope(Dispatchers.IO).launch {
+                getLocation()
+            }
+        } else {
+            requestLocation()
+        }
+
+        binding.recyclerForecast.layoutManager = LinearLayoutManager(this)
+
+        viewModel.currentWeatherLiveData.observe(this) {
+            showMainInfo(currentWeather = it)
+        }
+        viewModel.forecastLiveData.observe(this) {
+            showWeatherOnRecycler(data = it.data)
+        }
+    }
+
+    private fun showMainInfo(currentWeather: CurrentWeather) {
+        binding.apply {
+            currentWeather.data.forEach {
+                tvCityName.text = it.city_name
+                tvMainTemp.text = "${it.temp.toInt()} °C"
+                tvWindSpeed.text = "Ветер: ${it.wind_spd.toInt()} м/c"
+                tvFeelsLike.text = "Ощущается как: ${it.app_temp.toInt()} °C"
+                tvDescription.text = it.weather.description
+                imageMain.setImageDrawable(getMainBackground(it.weather.description))
+            }
+        }
+    }
+
+    private fun showWeatherOnRecycler(data: List<Data>) {
+        binding.progressCircle.visibility = View.INVISIBLE
+        val forecastModels: ArrayList<ForecastModel> = ArrayList()
+        for (i in 0..6) {
+            forecastModels.add(
+                ForecastModel(
+                    max_temp = data[i].max_temp,
+                    min_temp = data[i].min_temp,
+                    imageIcon = getForecastIcon(data[i].weather.description),
+                    imageBackground = getForecastBackground(data[i].weather.description)
+                )
+            )
+        }
+        binding.recyclerForecast.adapter = ForecastAdapter(models = forecastModels)
+    }
+
+    private fun requestLocation() {
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ),
-            mark
+            MARK
         )
-        appScope.launch{
-            getLocation()
-        }
+        CoroutineScope(Dispatchers.IO).launch { getLocation() }
     }
 
-    override fun onResume() {
-        super.onResume()
-        appScope.launch{
-            getLocation()
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu, menu)
-        return true
-    }
-
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId == R.id.update){
-            appScope.launch{
-                getLocation()
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun getLocation(){
+    private fun getLocation() {
         val ct = CancellationTokenSource()
-        fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -114,154 +112,67 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            return
+            Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
         } else {
             fusedLocationProviderClient
                 .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, ct.token)
-                .addOnCompleteListener { getData(it.result.latitude,it.result.longitude)}
-        }
-    }
-
-    private fun getData(lat:Double,lon:Double){
-
-        val url="https://api.weatherbit.io/v2.0/current?" +
-                "lat=$lat" +
-                "&lon=$lon" +
-                "&key=$token"+
-                "&units=M&lang=ru"
-        val urlForecast="https://api.weatherbit.io/v2.0/forecast/daily?" +
-                "lat=$lat" +
-                "&lon=$lon" +
-                "&key=$token"+
-                "&units=M&lang=ru"
-
-
-        val queue= Volley.newRequestQueue(this)
-        appScope.launch{
-
-            val request= StringRequest(
-                Request.Method.GET, url,
-                {
-                        result -> parseCurrentData(result)
-                },
-                {
-                    Toast.makeText(applicationContext,"Не удалось получить данные", Toast.LENGTH_SHORT).show()
+                .addOnCompleteListener {
+                    viewModel.getCurrentWeather(
+                        lat = it.result.latitude,
+                        lon = it.result.longitude
+                    )
+                    viewModel.getForecastWeather(
+                        lat = it.result.latitude,
+                        lon = it.result.longitude
+                    )
                 }
-            )
-            queue.add(request)
-        }
-
-        appScope.launch{
-
-            val request2= StringRequest(
-                Request.Method.GET, urlForecast,
-                {
-                        result2 -> parseDataFromDailyForecast(result2)
-                },
-                {
-                    Toast.makeText(applicationContext,"Не удалось получить данные", Toast.LENGTH_SHORT).show()
-                }
-            )
-            queue.add(request2)
         }
     }
 
-    private fun parseDataFromDailyForecast(result: String){
-        val dailyForecastArray: ArrayList<DailyForecastModel> = ArrayList()
-        val mainJSONObject= JSONObject(result)
-        for (i in 0..6)
-        {
-            val value1 = DailyForecastModel(
-                mainJSONObject.getJSONArray("data")
-                    .getJSONObject(i).getDouble("min_temp").toInt(),
+    private fun getMainBackground(description: String): Drawable? {
+        return if (description.contains("Облачно") || description.contains("облачно"))
+            ContextCompat.getDrawable(this, R.drawable.ic_main_cloud)
+        else if (description.contains("Дождь") || description.contains("дождь"))
+            ContextCompat.getDrawable(this, R.drawable.ic_main_rain)
+        else if (description.contains("Снег") || description.contains("снег"))
+            ContextCompat.getDrawable(this, R.drawable.ic_main_snow)
+        else ContextCompat.getDrawable(this, R.drawable.ic_main_sun)
+    }
 
-                mainJSONObject.getJSONArray("data")
-                    .getJSONObject(i).getDouble("max_temp").toInt(),
+    private fun getForecastBackground(description: String): Drawable? {
+        return if (description.contains("Облачно") || description.contains("облачно"))
+            ContextCompat.getDrawable(this, R.drawable.ic_forecast_cloud)
+        else if (description.contains("Дождь") || description.contains("дождь"))
+            ContextCompat.getDrawable(this, R.drawable.ic_forecast_cloud)
+        else if (description.contains("Снег") || description.contains("снег"))
+            ContextCompat.getDrawable(this, R.drawable.ic_forecast_snow)
+        else ContextCompat.getDrawable(this, R.drawable.ic_forecast_sun)
+    }
 
-                if(mainJSONObject.getJSONArray("data")
-                        .getJSONObject(i).getJSONObject("weather").getString("description").contains("Облачно"))icon1
-                else if(mainJSONObject.getJSONArray("data")
-                        .getJSONObject(i).getJSONObject("weather").getString("description").contains("Дождь"))icon2
-                else if(mainJSONObject.getJSONArray("data")
-                        .getJSONObject(i).getJSONObject("weather").getString("description").contains("Снег"))icon3
-                else icon4,
+    private fun getForecastIcon(description: String): Drawable? {
+        return if (description.contains("Облачно") || description.contains("облачно"))
+            ContextCompat.getDrawable(this, R.drawable.ic_cloud_small_icon)
+        else if (description.contains("Дождь") || description.contains("дождь"))
+            ContextCompat.getDrawable(this, R.drawable.ic_rain_small_icon)
+        else if (description.contains("Снег") || description.contains("снег"))
+            ContextCompat.getDrawable(this, R.drawable.ic_snow_small_icon)
+        else
+            ContextCompat.getDrawable(this, R.drawable.ic_sun_small_icon)
+    }
 
-                mainJSONObject.getJSONArray("data")
-                    .getJSONObject(i).getJSONObject("weather").getString("description"),
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
 
-                if(mainJSONObject.getJSONArray("data").
-                    getJSONObject(i).getJSONObject("weather").getString("description").contains("Облачно")) backDailyCloud
-                else if(mainJSONObject.getJSONArray("data").
-                    getJSONObject(i).getJSONObject("weather").getString("description").contains("Дождь")) backDailyRain
-                else if(mainJSONObject.getJSONArray("data").
-                    getJSONObject(i).getJSONObject("weather").getString("description").contains("Снег")) backDailySnow
-                else backDailySun,
-                dailyForecastArray.size
-            )
-            dailyForecastArray.add(value1)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.update) {
+            CoroutineScope(Dispatchers.IO).launch {
+                getLocation()
+            }
+            Toast.makeText(this, "Идет обновление", Toast.LENGTH_SHORT).show()
         }
-        recyclerViewDaily?.adapter = DailyAdapter(dailyForecastArray)
-        progressCircle?.visibility = View.INVISIBLE
-    }
-
-    private fun parseCurrentData(result: String){
-        val mainJSONObject=JSONObject(result)
-        currentData= CurrentWeatherData(
-            mainJSONObject.getJSONArray("data").getJSONObject(0).getString("city_name"),
-            mainJSONObject.getJSONArray("data").getJSONObject(0).getJSONObject("weather").getString("description"),
-            mainJSONObject.getJSONArray("data").getJSONObject(0).getDouble("app_temp"),
-            mainJSONObject.getJSONArray("data").getJSONObject(0).getDouble("wind_spd"),
-            mainJSONObject.getJSONArray("data").getJSONObject(0).getDouble("temp"),
-            ""
-        )
-        putDataToLayout(currentData!!)
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun putDataToLayout(data:CurrentWeatherData){
-        name?.text = data.place
-        mainTemp?.text = data.currentTemp.toInt().toString()+" °C"
-        description?.text = data.description
-        feelsLike?.text = "Ощущается как: "+ data.feels_like.toInt()+" °C"
-        windSpeed?.text = "Скорость ветра: "+ data.windSpeed.toInt()+" км/ч"
-
-        if(data.description.contains("Облачно")||data.description.contains("облачно")) {
-            mainBackground?.setImageResource(R.drawable.ic_main_cloud)
-            hourlyImageView?.setImageResource(R.drawable.ic_hourly_back_cloud)
-        }else if(data.description.contains("Дождь")||data.description.contains("дождь")){
-            mainBackground?.setImageResource(R.drawable.ic_main_rain)
-            hourlyImageView?.setImageResource(R.drawable.ic_hourly_back_rain)
-        }else if(data.description.contains("Снег")||data.description.contains("снег")) {
-            mainBackground?.setImageResource(R.drawable.ic_main_snow)
-            hourlyImageView?.setImageResource(R.drawable.ic_hourly_forecast_snow)
-        } else{
-            mainBackground?.setImageResource(R.drawable.ic_main_sun)
-            hourlyImageView?.setImageResource(R.drawable.ic_hourly_back_cloud)
-        }
-    }
-
-
-    private fun init(){
-        progressCircle = findViewById(R.id.progressCircle)
-        icon1 = ContextCompat.getDrawable(this, R.drawable.ic_cloud_small_icon)
-        icon2 = ContextCompat.getDrawable(this, R.drawable.ic_rain_small_icon)
-        icon3 = ContextCompat.getDrawable(this, R.drawable.ic_snow_small_icon)
-        icon4 = ContextCompat.getDrawable(this, R.drawable.ic_sun_small_icon)
-
-        backDailyCloud = ContextCompat.getDrawable(this, R.drawable.ic_forecast_cloud)
-        backDailySnow = ContextCompat.getDrawable(this, R.drawable.ic_forecast_snow)
-        backDailySun = ContextCompat.getDrawable(this, R.drawable.ic_forecast_sun)
-        backDailyRain = ContextCompat.getDrawable(this, R.drawable.ic_forecast_rain)
-
-        recyclerViewDaily = findViewById(R.id.recyclerDailyForecast)
-        recyclerViewDaily?.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-
-        mainBackground = findViewById(R.id.imageMain)
-        mainBackground?.setImageResource(R.drawable.ic_main_loading)
-        name = findViewById(R.id.tvCityName)
-        mainTemp = findViewById(R.id.tvMainTemp)
-        description = findViewById(R.id.tvMainState)
-        feelsLike = findViewById(R.id.tvFeelsLike)
-        windSpeed = findViewById(R.id.tvWindSpeed)
+        return super.onOptionsItemSelected(item)
     }
 }
+

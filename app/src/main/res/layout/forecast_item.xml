@@ -20,8 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@+id/dailyForecastImage"
-            app:layout_constraintEnd_toStartOf="@+id/dailyTempEvening"
-            app:layout_constraintStart_toEndOf="@+id/dailyTempDay"
+            app:layout_constraintEnd_toStartOf="@+id/tvMaxTemp"
+            app:layout_constraintStart_toEndOf="@+id/tvMinTemp"
             app:layout_constraintTop_toTopOf="@+id/dailyForecastImage"
             app:srcCompat="@drawable/ic_sun_small_icon"
             android:contentDescription="@string/stateImageDesc" />
@@ -39,7 +39,7 @@
             app:layout_constraintTop_toTopOf="@+id/dailyForecastImage" />
 
         <TextView
-            android:id="@+id/dailyTempEvening"
+            android:id="@+id/tvMinTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
@@ -51,7 +51,7 @@
             app:layout_constraintTop_toTopOf="@+id/dailyForecastImage" />
 
         <TextView
-            android:id="@+id/dailyTempDay"
+            android:id="@+id/tvMaxTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/nunito_sans"

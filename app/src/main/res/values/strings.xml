@@ -15,6 +15,7 @@
     <string name="feels_like">Ощущается как: …</string>
     <string name="wind_speed">Скорость ветра: …</string>
     <string name="gps_loading">Идет загрузка</string>
-    <string name="loading_temp">...</string>
+    <string name="loading_temp">…</string>
     <string name="update">Update</string>
+    <string name="get_data_error">Не удалось получить данные</string>
 </resources>
